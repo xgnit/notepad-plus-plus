@@ -544,7 +544,7 @@ void Finder::gotoFoundLine()
 	const FoundInfo fInfo = *(_pMainFoundInfos->begin() + lno);
 
 	// Switch to another document
-	if (!::SendMessage(::GetParent(_hParent), WM_DOOPEN, 0, reinterpret_cast<LPARAM>(fInfo._fullPath.c_str()))) return;
+	if (!::SendMessage(_hParent, WM_DOOPEN, 0, reinterpret_cast<LPARAM>(fInfo._fullPath.c_str()))) return;
 
 	(*_ppEditView)->_positionRestoreNeeded = false;
 	Searching::displaySectionCentered(fInfo._start, fInfo._end, *_ppEditView);
@@ -1226,11 +1226,11 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 				}
 				return TRUE;
 
-				case IDD_FINDINFILES_FIND_BUTTON :
+				case IDD_FINDINFILES_FIND_BUTTON:
 				{
 					setStatusbarMessage(TEXT(""), FSNoMessage);
 					const int filterSize = 256;
-					TCHAR filters[filterSize+1];
+					TCHAR filters[filterSize + 1];
 					filters[filterSize] = '\0';
 					TCHAR directory[MAX_PATH];
 					::GetDlgItemText(_hSelf, IDD_FINDINFILES_FILTERS_COMBO, filters, filterSize);
@@ -1238,25 +1238,30 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 					_options._filters = filters;
 
 					::GetDlgItemText(_hSelf, IDD_FINDINFILES_DIR_COMBO, directory, MAX_PATH);
-					addText2Combo(directory, ::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO));
 					_options._directory = directory;
-					
-					if ((lstrlen(directory) > 0) && (directory[lstrlen(directory)-1] != '\\'))
-						_options._directory += TEXT("\\");
+					trim(_options._directory);
+					if (!_options._directory.empty())
+					{
+						addText2Combo(_options._directory.c_str(), ::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO));
+						if (_options._directory.back() != L'\\')
+						{
+							_options._directory += TEXT("\\");
+						}
 
-					HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
-                   combo2ExtendedMode(IDFINDWHAT);
-					_options._str2Search = getTextFromCombo(hFindCombo);
-					updateCombo(IDFINDWHAT);
+						HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
+						combo2ExtendedMode(IDFINDWHAT);
+						_options._str2Search = getTextFromCombo(hFindCombo);
+						updateCombo(IDFINDWHAT);
 
-					nppParamInst._isFindReplacing = true;
-					if (isMacroRecording) saveInMacro(wParam, FR_OP_FIND + FR_OP_FIF);
-					findAllIn(FILES_IN_DIR);
-					nppParamInst._isFindReplacing = false;
+						nppParamInst._isFindReplacing = true;
+						if (isMacroRecording) saveInMacro(wParam, FR_OP_FIND + FR_OP_FIF);
+						findAllIn(FILES_IN_DIR);
+						nppParamInst._isFindReplacing = false;
+					}
 				}
 				return TRUE;
 
-				case IDD_FINDINFILES_REPLACEINFILES :
+				case IDD_FINDINFILES_REPLACEINFILES:
 				{
 					std::lock_guard<std::mutex> lock(findOps_mutex);
 
@@ -1269,25 +1274,30 @@ INT_PTR CALLBACK FindReplaceDlg::run_dlgProc(UINT message, WPARAM wParam, LPARAM
 					_options._filters = filters;
 
 					::GetDlgItemText(_hSelf, IDD_FINDINFILES_DIR_COMBO, directory, MAX_PATH);
-					addText2Combo(directory, ::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO));
 					_options._directory = directory;
-					
-					if ((lstrlen(directory) > 0) && (directory[lstrlen(directory)-1] != '\\'))
-						_options._directory += TEXT("\\");
-
-					if (replaceInFilesConfirmCheck(_options._directory, _options._filters))
+					trim(_options._directory);
+					if (!_options._directory.empty())
 					{
-						HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
-						_options._str2Search = getTextFromCombo(hFindCombo);
-						HWND hReplaceCombo = ::GetDlgItem(_hSelf, IDREPLACEWITH);
-						_options._str4Replace = getTextFromCombo(hReplaceCombo);
-						updateCombo(IDFINDWHAT);
-						updateCombo(IDREPLACEWITH);
+						if (replaceInFilesConfirmCheck(_options._directory, _options._filters))
+						{
+							addText2Combo(_options._directory.c_str(), ::GetDlgItem(_hSelf, IDD_FINDINFILES_DIR_COMBO));
+							if (_options._directory.back() != L'\\')
+							{
+								_options._directory += TEXT("\\");
+							}
 
-						nppParamInst._isFindReplacing = true;
-						if (isMacroRecording) saveInMacro(wParam, FR_OP_REPLACE + FR_OP_FIF);
-						::SendMessage(_hParent, WM_REPLACEINFILES, 0, 0);
-						nppParamInst._isFindReplacing = false;
+							HWND hFindCombo = ::GetDlgItem(_hSelf, IDFINDWHAT);
+							_options._str2Search = getTextFromCombo(hFindCombo);
+							HWND hReplaceCombo = ::GetDlgItem(_hSelf, IDREPLACEWITH);
+							_options._str4Replace = getTextFromCombo(hReplaceCombo);
+							updateCombo(IDFINDWHAT);
+							updateCombo(IDREPLACEWITH);
+
+							nppParamInst._isFindReplacing = true;
+							if (isMacroRecording) saveInMacro(wParam, FR_OP_REPLACE + FR_OP_FIF);
+							::SendMessage(_hParent, WM_REPLACEINFILES, 0, 0);
+							nppParamInst._isFindReplacing = false;
+						}
 					}
 				}
 				return TRUE;
@@ -2355,7 +2365,7 @@ void FindReplaceDlg::findAllIn(InWhat op)
 	if (!_pFinder)
 	{
 		_pFinder = new Finder();
-		_pFinder->init(_hInst, _hSelf, _ppEditView);
+		_pFinder->init(_hInst, (*_ppEditView)->getHParent(), _ppEditView);
 		_pFinder->setVolatiled(false);
 		
 		tTbData	data = {0};
@@ -2418,8 +2428,7 @@ void FindReplaceDlg::findAllIn(InWhat op)
 		_pFinder->_scintView.setMakerStyle(FOLDER_STYLE_SIMPLE);
 
 		_pFinder->_scintView.display();
-		_pFinder->display();
-		::SendMessage(_hParent, NPPM_DMMHIDE, 0, reinterpret_cast<LPARAM>(_pFinder->getHSelf()));
+		_pFinder->display(false);
 		::UpdateWindow(_hParent);
 		justCreated = true;
 	}
@@ -2459,7 +2468,7 @@ void FindReplaceDlg::findAllIn(InWhat op)
 		else
 		{
 			// Show finder
-			::SendMessage(_hParent, NPPM_DMMSHOW, 0, reinterpret_cast<LPARAM>(_pFinder->getHSelf()));
+			_pFinder->display();
 			getFocus(); // no hits
 		}
 	}
@@ -2471,7 +2480,7 @@ Finder * FindReplaceDlg::createFinder()
 {
 	Finder *pFinder = new Finder();
 
-	pFinder->init(_hInst, _hSelf, _ppEditView);
+	pFinder->init(_hInst, (*_ppEditView)->getHParent(), _ppEditView);
 	
 	tTbData	data = { 0 };
 	pFinder->create(&data, false);
@@ -2532,7 +2541,6 @@ Finder * FindReplaceDlg::createFinder()
 	pFinder->_scintView.setMakerStyle(FOLDER_STYLE_SIMPLE);
 
 	pFinder->_scintView.display();
-	pFinder->display();
 	::UpdateWindow(_hParent);
 	
 	pFinder->setFinderStyle();
@@ -2547,7 +2555,7 @@ Finder * FindReplaceDlg::createFinder()
 	::SendMessage(pFinder->getHSelf(), WM_SIZE, 0, 0);
 
 	// Show finder
-	::SendMessage(_hParent, NPPM_DMMSHOW, 0, reinterpret_cast<LPARAM>(pFinder->getHSelf()));
+	pFinder->display();
 	pFinder->_scintView.getFocus();
 
 	return pFinder;
@@ -3214,7 +3222,7 @@ LRESULT FAR PASCAL FindReplaceDlg::finderProc(HWND hwnd, UINT message, WPARAM wP
 		if (wParam == VK_RETURN)
 			pFinder->gotoFoundLine();
 		else if (wParam == VK_ESCAPE)
-			::SendMessage(::GetParent(pFinder->getHParent()), NPPM_DMMHIDE, 0, reinterpret_cast<LPARAM>(pFinder->getHSelf()));
+			pFinder->display(false);
 		else // VK_DELETE
 			pFinder->deleteResult();
 		return 0;
@@ -3578,7 +3586,7 @@ void Finder::openAll()
 
 	for (size_t i = 0; i < sz; ++i)
 	{
-		::SendMessage(::GetParent(_hParent), WM_DOOPEN, 0, reinterpret_cast<LPARAM>(_pMainFoundInfos->at(i)._fullPath.c_str()));
+		::SendMessage(_hParent, WM_DOOPEN, 0, reinterpret_cast<LPARAM>(_pMainFoundInfos->at(i)._fullPath.c_str()));
 	}
 }
 
@@ -3774,7 +3782,7 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				case NPPM_INTERNAL_FINDINFINDERDLG:
 				{
-					::SendMessage(::GetParent(_hParent), NPPM_INTERNAL_FINDINFINDERDLG, reinterpret_cast<WPARAM>(this), 0);
+					::SendMessage(_hParent, NPPM_INTERNAL_FINDINFINDERDLG, reinterpret_cast<WPARAM>(this), 0);
 					return TRUE;
 				}
 
@@ -3782,7 +3790,7 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (_canBeVolatiled)
 					{
-						::SendMessage(::GetParent(_hParent), NPPM_DMMHIDE, 0, reinterpret_cast<LPARAM>(_hSelf));
+						::SendMessage(_hParent, NPPM_DMMHIDE, 0, reinterpret_cast<LPARAM>(_hSelf));
 						setClosed(true);
 					}
 					return TRUE;
@@ -3803,6 +3811,13 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 				case NPPM_INTERNAL_SCINTILLAFINFERCOPY :
 				{
 					copy();
+					return TRUE;
+				}
+
+				case NPPM_INTERNAL_SCINTILLAFINFERCOPYVERBATIM:
+				{
+					_scintView.execute(SCI_COPY);
+
 					return TRUE;
 				}
 
@@ -3848,11 +3863,12 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 
 				NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
 
-				generic_string findInFinder = pNativeSpeaker->getLocalizedStrFromID("finder-find-in-finder", TEXT("Find in these found results..."));
-				generic_string closeThis = pNativeSpeaker->getLocalizedStrFromID("finder-close-this", TEXT("Close this finder"));
+				generic_string findInFinder = pNativeSpeaker->getLocalizedStrFromID("finder-find-in-finder", TEXT("Find in these search results..."));
+				generic_string closeThis = pNativeSpeaker->getLocalizedStrFromID("finder-close-this", TEXT("Close these search results"));
 				generic_string collapseAll = pNativeSpeaker->getLocalizedStrFromID("finder-collapse-all", TEXT("Collapse all"));
 				generic_string uncollapseAll = pNativeSpeaker->getLocalizedStrFromID("finder-uncollapse-all", TEXT("Uncollapse all"));
-				generic_string copy = pNativeSpeaker->getLocalizedStrFromID("finder-copy", TEXT("Copy"));
+				generic_string copyLines = pNativeSpeaker->getLocalizedStrFromID("finder-copy", TEXT("Copy Selected Line(s)"));
+				generic_string copyVerbatim = pNativeSpeaker->getLocalizedStrFromID("finder-copy-verbatim", TEXT("Copy"));
 				generic_string selectAll = pNativeSpeaker->getLocalizedStrFromID("finder-select-all", TEXT("Select all"));
 				generic_string clearAll = pNativeSpeaker->getLocalizedStrFromID("finder-clear-all", TEXT("Clear all"));
 				generic_string openAll = pNativeSpeaker->getLocalizedStrFromID("finder-open-all", TEXT("Open all"));
@@ -3865,7 +3881,8 @@ INT_PTR CALLBACK Finder::run_dlgProc(UINT message, WPARAM wParam, LPARAM lParam)
 				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERCOLLAPSE, collapseAll));
 				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERUNCOLLAPSE, uncollapseAll));
 				tmp.push_back(MenuItemUnit(0, TEXT("Separator")));
-				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERCOPY, copy));
+				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERCOPYVERBATIM, copyVerbatim));
+				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERCOPY, copyLines));
 				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERSELECTALL, selectAll));
 				tmp.push_back(MenuItemUnit(NPPM_INTERNAL_SCINTILLAFINFERCLEARALL, clearAll));
 				tmp.push_back(MenuItemUnit(0, TEXT("Separator")));

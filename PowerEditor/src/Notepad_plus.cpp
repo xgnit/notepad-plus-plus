@@ -207,14 +207,14 @@ LRESULT Notepad_plus::init(HWND hwnd)
 
 	// Menu
 	_mainMenuHandle = ::GetMenu(hwnd);
-	int langPos2BeRemoved = MENUINDEX_LANGUAGE+1;
+	int langPos2BeRemoved = MENUINDEX_LANGUAGE + 1;
 	if (nppGUI._isLangMenuCompact)
 		langPos2BeRemoved = MENUINDEX_LANGUAGE;
 	::RemoveMenu(_mainMenuHandle, langPos2BeRemoved, MF_BYPOSITION);
 
 	//Views
-    _pDocTab = &_mainDocTab;
-    _pEditView = &_mainEditView;
+	_pDocTab = &_mainDocTab;
+	_pEditView = &_mainEditView;
 	_pNonDocTab = &_subDocTab;
 	_pNonEditView = &_subEditView;
 
@@ -230,10 +230,10 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_mainWindowStatus = WindowMainActive;
 	_activeView = MAIN_VIEW;
 
-    const ScintillaViewParams & svp1 = nppParam.getSVP();
+	const ScintillaViewParams & svp1 = nppParam.getSVP();
 
 	int tabBarStatus = nppGUI._tabStatus;
-	
+
 	_toReduceTabBar = ((tabBarStatus & TAB_REDUCE) != 0);
 	int iconDpiDynamicalSize = nppParam._dpiManager.scaleY(_toReduceTabBar ? 13 : 20);
 	_docTabIconList.create(iconDpiDynamicalSize, _pPublicInterface->getHinst(), docTabIconIDs, sizeof(docTabIconIDs) / sizeof(int));
@@ -254,13 +254,13 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_invisibleEditView.wrap(false); // Make sure no slow down
 
 	// Configuration of 2 scintilla views
-    _mainEditView.showMargin(ScintillaEditView::_SC_MARGE_LINENUMBER, svp1._lineNumberMarginShow);
+	_mainEditView.showMargin(ScintillaEditView::_SC_MARGE_LINENUMBER, svp1._lineNumberMarginShow);
 	_subEditView.showMargin(ScintillaEditView::_SC_MARGE_LINENUMBER, svp1._lineNumberMarginShow);
-    _mainEditView.showMargin(ScintillaEditView::_SC_MARGE_SYBOLE, svp1._bookMarkMarginShow);
+	_mainEditView.showMargin(ScintillaEditView::_SC_MARGE_SYBOLE, svp1._bookMarkMarginShow);
 	_subEditView.showMargin(ScintillaEditView::_SC_MARGE_SYBOLE, svp1._bookMarkMarginShow);
 
-    _mainEditView.showIndentGuideLine(svp1._indentGuideLineShow);
-    _subEditView.showIndentGuideLine(svp1._indentGuideLineShow);
+	_mainEditView.showIndentGuideLine(svp1._indentGuideLineShow);
+	_subEditView.showIndentGuideLine(svp1._indentGuideLineShow);
 
 	::SendMessage(hwnd, NPPM_INTERNAL_SETCARETWIDTH, 0, 0);
 	::SendMessage(hwnd, NPPM_INTERNAL_SETCARETBLINKRATE, 0, 0);
@@ -269,15 +269,15 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_preference.init(_pPublicInterface->getHinst(), hwnd);
 	_pluginsAdminDlg.init(_pPublicInterface->getHinst(), hwnd);
 
-    //Marker Margin config
-    _mainEditView.setMakerStyle(svp1._folderStyle);
-    _subEditView.setMakerStyle(svp1._folderStyle);
+	//Marker Margin config
+	_mainEditView.setMakerStyle(svp1._folderStyle);
+	_subEditView.setMakerStyle(svp1._folderStyle);
 	_mainEditView.defineDocType(_mainEditView.getCurrentBuffer()->getLangType());
 	_subEditView.defineDocType(_subEditView.getCurrentBuffer()->getLangType());
 
 	//Line wrap method
 	_mainEditView.setWrapMode(svp1._lineWrapMethod);
-    _subEditView.setWrapMode(svp1._lineWrapMethod);
+	_subEditView.setWrapMode(svp1._lineWrapMethod);
 
 	_mainEditView.execute(SCI_SETCARETLINEVISIBLE, svp1._currentLineHilitingShow);
 	_subEditView.execute(SCI_SETCARETLINEVISIBLE, svp1._currentLineHilitingShow);
@@ -318,7 +318,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_mainEditView.execute(SCI_SETZOOM, svp1._zoom);
 	_subEditView.execute(SCI_SETZOOM, svp1._zoom2);
 
-    ::SendMessage(hwnd, NPPM_INTERNAL_SETMULTISELCTION, 0, 0);
+	::SendMessage(hwnd, NPPM_INTERNAL_SETMULTISELCTION, 0, 0);
 
 	// Make backspace or delete work with multiple selections
 	_mainEditView.execute(SCI_SETADDITIONALSELECTIONTYPING, true);
@@ -367,23 +367,23 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	TabBarPlus::setVertical((tabBarStatus & TAB_VERTICAL) != 0);
 	drawTabbarColoursFromStylerArray();
 
-    //--Splitter Section--//
+	//--Splitter Section--//
 	bool isVertical = (nppGUI._splitterPos == POS_VERTICAL);
 
-    _subSplitter.init(_pPublicInterface->getHinst(), hwnd);
-    _subSplitter.create(&_mainDocTab, &_subDocTab, 8, SplitterMode::DYNAMIC, 50, isVertical);
+	_subSplitter.init(_pPublicInterface->getHinst(), hwnd);
+	_subSplitter.create(&_mainDocTab, &_subDocTab, 8, SplitterMode::DYNAMIC, 50, isVertical);
 
-    //--Status Bar Section--//
+	//--Status Bar Section--//
 	bool willBeShown = nppGUI._statusBarShow;
-    _statusBar.init(_pPublicInterface->getHinst(), hwnd, 6);
+	_statusBar.init(_pPublicInterface->getHinst(), hwnd, 6);
 	_statusBar.setPartWidth(STATUSBAR_DOC_SIZE, nppParam._dpiManager.scaleX(220));
 	_statusBar.setPartWidth(STATUSBAR_CUR_POS, nppParam._dpiManager.scaleX(260));
 	_statusBar.setPartWidth(STATUSBAR_EOF_FORMAT, nppParam._dpiManager.scaleX(110));
 	_statusBar.setPartWidth(STATUSBAR_UNICODE_TYPE, nppParam._dpiManager.scaleX(120));
 	_statusBar.setPartWidth(STATUSBAR_TYPING_MODE, nppParam._dpiManager.scaleX(30));
-    _statusBar.display(willBeShown);
+	_statusBar.display(willBeShown);
 
-    _pMainWindow = &_mainDocTab;
+	_pMainWindow = &_mainDocTab;
 
 	_dockingManager.init(_pPublicInterface->getHinst(), hwnd, &_pMainWindow);
 
@@ -405,28 +405,30 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_pluginsManager.init(nppData);
 
 	_pluginsManager.loadPluginsV2(nppParam.getPluginRootDir());
-    _restoreButton.init(_pPublicInterface->getHinst(), hwnd);
+	_restoreButton.init(_pPublicInterface->getHinst(), hwnd);
 
 	// ------------ //
 	// Menu Section //
 	// ------------ //
 
+	setupColorSampleBitmapsOnMainMenuItems();
+
 	// Macro Menu
-	std::vector<MacroShortcut> & macros  = nppParam.getMacroList();
+	std::vector<MacroShortcut> & macros = nppParam.getMacroList();
 	HMENU hMacroMenu = ::GetSubMenu(_mainMenuHandle, MENUINDEX_MACRO);
 	size_t const posBase = 6;
 	size_t nbMacro = macros.size();
 	if (nbMacro >= 1)
 		::InsertMenu(hMacroMenu, posBase - 1, MF_BYPOSITION, static_cast<UINT>(-1), 0);
 
-	for (size_t i = 0 ; i < nbMacro ; ++i)
+	for (size_t i = 0; i < nbMacro; ++i)
 		::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + i), MF_BYPOSITION, ID_MACRO + i, macros[i].toMenuItemString().c_str());
 
-    if (nbMacro >= 1)
-    {
-        ::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + nbMacro + 1), MF_BYPOSITION, static_cast<UINT>(-1), 0);
-        ::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + nbMacro + 2), MF_BYCOMMAND, IDM_SETTING_SHORTCUT_MAPPER_MACRO, TEXT("Modify Shortcut/Delete Macro..."));
-    }
+	if (nbMacro >= 1)
+	{
+		::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + nbMacro + 1), MF_BYPOSITION, static_cast<UINT>(-1), 0);
+		::InsertMenu(hMacroMenu, static_cast<UINT>(posBase + nbMacro + 2), MF_BYCOMMAND, IDM_SETTING_SHORTCUT_MAPPER_MACRO, TEXT("Modify Shortcut/Delete Macro..."));
+	}
 
 	// Run Menu
 	std::vector<UserCommand> & userCommands = nppParam.getUserCommandList();
@@ -436,16 +438,16 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	if (nbUserCommand >= 1)
 		::InsertMenu(hRunMenu, runPosBase - 1, MF_BYPOSITION, static_cast<UINT>(-1), 0);
 
-	for (size_t i = 0 ; i < nbUserCommand ; ++i)
+	for (size_t i = 0; i < nbUserCommand; ++i)
 	{
 		::InsertMenu(hRunMenu, static_cast<UINT>(runPosBase + i), MF_BYPOSITION, ID_USER_CMD + i, userCommands[i].toMenuItemString().c_str());
 	}
 
-    if (nbUserCommand >= 1)
-    {
-		::InsertMenu(hRunMenu, static_cast<UINT>(runPosBase + nbUserCommand + 1), MF_BYPOSITION,  static_cast<UINT>(-1), 0);
-        ::InsertMenu(hRunMenu, static_cast<UINT>(runPosBase + nbUserCommand + 2), MF_BYCOMMAND, IDM_SETTING_SHORTCUT_MAPPER_RUN, TEXT("Modify Shortcut/Delete Command..."));
-    }
+	if (nbUserCommand >= 1)
+	{
+		::InsertMenu(hRunMenu, static_cast<UINT>(runPosBase + nbUserCommand + 1), MF_BYPOSITION, static_cast<UINT>(-1), 0);
+		::InsertMenu(hRunMenu, static_cast<UINT>(runPosBase + nbUserCommand + 2), MF_BYCOMMAND, IDM_SETTING_SHORTCUT_MAPPER_RUN, TEXT("Modify Shortcut/Delete Command..."));
+	}
 
 	// Updater menu item
 	if (!nppGUI._doesExistUpdater)
@@ -463,7 +465,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	HMENU hLangMenu = ::GetSubMenu(_mainMenuHandle, MENUINDEX_LANGUAGE);
 
 	// Add external languages to menu
-	for (int i = 0 ; i < nppParam.getNbExternalLang() ; ++i)
+	for (int i = 0; i < nppParam.getNbExternalLang(); ++i)
 	{
 		ExternalLangContainer & externalLangContainer = nppParam.getELCFromIndex(i);
 
@@ -477,12 +479,12 @@ LRESULT Notepad_plus::init(HWND hwnd)
 			::GetMenuString(hLangMenu, x, buffer, bufferSize, MF_BYPOSITION);
 		}
 
-		::InsertMenu(hLangMenu, x-1, MF_BYPOSITION, IDM_LANG_EXTERNAL + i, externalLangContainer._name);
+		::InsertMenu(hLangMenu, x - 1, MF_BYPOSITION, IDM_LANG_EXTERNAL + i, externalLangContainer._name);
 	}
 
 	if (nppGUI._excludedLangList.size() > 0)
 	{
-		for (size_t i = 0, len = nppGUI._excludedLangList.size(); i < len ; ++i)
+		for (size_t i = 0, len = nppGUI._excludedLangList.size(); i < len; ++i)
 		{
 			int cmdID = nppParam.langTypeToCommandID(nppGUI._excludedLangList[i]._langType);
 			const int itemSize = 256;
@@ -498,7 +500,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	// Add User Defined Languages Entry
 	int udlpos = ::GetMenuItemCount(hLangMenu) - 1;
 
-	for (int i = 0, len = nppParam.getNbUserLang(); i < len ; ++i)
+	for (int i = 0, len = nppParam.getNbUserLang(); i < len; ++i)
 	{
 		UserLangContainer & userLangContainer = nppParam.getULCFromIndex(i);
 		::InsertMenu(hLangMenu, udlpos + i, MF_BYPOSITION, IDM_LANG_USER + i + 1, userLangContainer.getName());
@@ -511,7 +513,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 
 	_lastRecentFileList.initMenu(hFileMenu, IDM_FILEMENU_LASTONE + 1, IDM_FILEMENU_EXISTCMDPOSITION, &_accelerator, nppParam.putRecentFileInSubMenu());
 	_lastRecentFileList.setLangEncoding(_nativeLangSpeaker.getLangEncoding());
-	for (int i = 0 ; i < nbLRFile ; ++i)
+	for (int i = 0; i < nbLRFile; ++i)
 	{
 		generic_string * stdStr = nppParam.getLRFile(i);
 		if (!nppGUI._checkHistoryFiles || PathFileExists(stdStr->c_str()))
@@ -551,7 +553,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	vector<MenuItemUnit> & tmp = nppParam.getContextMenuItems();
 	size_t len = tmp.size();
 	TCHAR menuName[64];
-	for (size_t i = 0 ; i < len ; ++i)
+	for (size_t i = 0; i < len; ++i)
 	{
 		if (tmp[i]._itemName.empty())
 		{
@@ -584,7 +586,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	::DrawMenuBar(hwnd);
 
 
-    //-- Tool Bar Section --//
+	//-- Tool Bar Section --//
 	toolBarStatusType tbStatus = nppGUI._toolBarStatus;
 	willBeShown = nppGUI._toolbarShow;
 
@@ -595,7 +597,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	scnN.nmhdr.idFrom = 0;
 	_pluginsManager.notify(&scnN);
 
-	_toolBar.init(_pPublicInterface->getHinst(), hwnd, tbStatus, toolBarIcons, sizeof(toolBarIcons)/sizeof(ToolBarButtonUnit));
+	_toolBar.init(_pPublicInterface->getHinst(), hwnd, tbStatus, toolBarIcons, sizeof(toolBarIcons) / sizeof(ToolBarButtonUnit));
 
 	changeToolBarIcons();
 
@@ -607,14 +609,14 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	checkMacroState();
 
 	//--Init dialogs--//
-    _findReplaceDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
+	_findReplaceDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
 	_findInFinderDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_incrementFindDlg.init(_pPublicInterface->getHinst(), hwnd, &_findReplaceDlg, _nativeLangSpeaker.isRTL());
 	_incrementFindDlg.addToRebar(&_rebarBottom);
-    _goToLineDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
+	_goToLineDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
 	_findCharsInRangeDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
 	_colEditorDlg.init(_pPublicInterface->getHinst(), hwnd, &_pEditView);
-    _aboutDlg.init(_pPublicInterface->getHinst(), hwnd);
+	_aboutDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_debugInfoDlg.init(_pPublicInterface->getHinst(), hwnd, _isAdministrator, _pluginsManager.getLoadedPluginNames());
 	_runDlg.init(_pPublicInterface->getHinst(), hwnd);
 	_runMacroDlg.init(_pPublicInterface->getHinst(), hwnd);
@@ -630,9 +632,9 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	_sha2FromTextDlg.setHashType(hash_sha256);
 
 
-    //--User Define Dialog Section--//
+	//--User Define Dialog Section--//
 	int uddStatus = nppGUI._userDefineDlgStatus;
-    UserDefineDialog *udd = _pEditView->getUserDefineDlg();
+	UserDefineDialog *udd = _pEditView->getUserDefineDlg();
 
 	bool uddShow = false;
 	switch (uddStatus)
@@ -644,12 +646,12 @@ LRESULT Notepad_plus::init(HWND hwnd)
 			uddShow = true;
 			break;
 		}
-        case UDD_DOCKED: // hide & docked
+		case UDD_DOCKED: // hide & docked
 		{
 			_isUDDocked = true;
-            break;
+			break;
 		}
-        case (UDD_SHOW | UDD_DOCKED) :    // show & docked
+		case (UDD_SHOW | UDD_DOCKED):    // show & docked
 		{
 			udd->doDialog(true, _nativeLangSpeaker.isRTL());
 			_nativeLangSpeaker.changeUserDefineLang(udd);
@@ -660,7 +662,7 @@ LRESULT Notepad_plus::init(HWND hwnd)
 
 		default: // hide & undocked
 			break;
-    }
+	}
 
 	//
 	// Menu & toolbar for UserDefine Dialog
@@ -685,29 +687,33 @@ LRESULT Notepad_plus::init(HWND hwnd)
 	//
 	// launch the plugin dlg memorized at the last session
 	//
-	DockingManagerData& dmd = nppGUI._dockingData;
 
-	_dockingManager.setDockedContSize(CONT_LEFT  , nppGUI._dockingData._leftWidth);
-	_dockingManager.setDockedContSize(CONT_RIGHT , nppGUI._dockingData._rightWidth);
-	_dockingManager.setDockedContSize(CONT_TOP	 , nppGUI._dockingData._topHeight);
-	_dockingManager.setDockedContSize(CONT_BOTTOM, nppGUI._dockingData._bottomHight);
-
-	for (size_t i = 0, len = dmd._pluginDockInfo.size(); i < len ; ++i)
+	if (!nppGUI._isCmdlineNosessionActivated)
 	{
-		PluginDlgDockingInfo& pdi = dmd._pluginDockInfo[i];
-		if (pdi._isVisible)
+		DockingManagerData& dmd = nppGUI._dockingData;
+
+		_dockingManager.setDockedContSize(CONT_LEFT, nppGUI._dockingData._leftWidth);
+		_dockingManager.setDockedContSize(CONT_RIGHT, nppGUI._dockingData._rightWidth);
+		_dockingManager.setDockedContSize(CONT_TOP, nppGUI._dockingData._topHeight);
+		_dockingManager.setDockedContSize(CONT_BOTTOM, nppGUI._dockingData._bottomHight);
+
+		for (size_t i = 0, len = dmd._pluginDockInfo.size(); i < len; ++i)
 		{
-			if (pdi._name == NPP_INTERNAL_FUCTION_STR)
-				_internalFuncIDs.push_back(pdi._internalID);
-			else
-				_pluginsManager.runPluginCommand(pdi._name.c_str(), pdi._internalID);
+			PluginDlgDockingInfo& pdi = dmd._pluginDockInfo[i];
+			if (pdi._isVisible)
+			{
+				if (pdi._name == NPP_INTERNAL_FUCTION_STR)
+					_internalFuncIDs.push_back(pdi._internalID);
+				else
+					_pluginsManager.runPluginCommand(pdi._name.c_str(), pdi._internalID);
+			}
 		}
-	}
 
-	for (size_t i = 0, len = dmd._containerTabInfo.size(); i < len; ++i)
-	{
-		ContainerTabInfo & cti = dmd._containerTabInfo[i];
-		_dockingManager.setActiveTab(cti._cont, cti._activeTab);
+		for (size_t i = 0, len = dmd._containerTabInfo.size(); i < len; ++i)
+		{
+			ContainerTabInfo & cti = dmd._containerTabInfo[i];
+			_dockingManager.setActiveTab(cti._cont, cti._activeTab);
+		}
 	}
 
 	//Load initial docs into doctab
@@ -2157,6 +2163,68 @@ void Notepad_plus::checkSyncState()
 	enableCommand(IDM_VIEW_SYNSCROLLH, canDoSync, MENU | TOOLBAR);
 }
 
+void Notepad_plus::setupColorSampleBitmapsOnMainMenuItems()
+{
+	// set up bitmaps on menu items
+	// style-related bitmaps of color samples
+
+	struct
+	{
+		int firstOfThisColorMenuId;
+		int styleIndic;
+		std::vector<int> sameColorMenuIds;
+	}
+	bitmapOnStyleMenuItemsInfo[] =
+	{
+		{ IDM_SEARCH_GONEXTMARKER5, SCE_UNIVERSAL_FOUND_STYLE_EXT5, { IDM_SEARCH_MARKALLEXT5, IDM_SEARCH_UNMARKALLEXT5, IDM_SEARCH_GOPREVMARKER5, IDM_SEARCH_STYLE5TOCLIP } },
+		{ IDM_SEARCH_GONEXTMARKER4, SCE_UNIVERSAL_FOUND_STYLE_EXT4, { IDM_SEARCH_MARKALLEXT4, IDM_SEARCH_UNMARKALLEXT4, IDM_SEARCH_GOPREVMARKER4, IDM_SEARCH_STYLE4TOCLIP } },
+		{ IDM_SEARCH_GONEXTMARKER3, SCE_UNIVERSAL_FOUND_STYLE_EXT3, { IDM_SEARCH_MARKALLEXT3, IDM_SEARCH_UNMARKALLEXT3, IDM_SEARCH_GOPREVMARKER3, IDM_SEARCH_STYLE3TOCLIP } },
+		{ IDM_SEARCH_GONEXTMARKER2, SCE_UNIVERSAL_FOUND_STYLE_EXT2, { IDM_SEARCH_MARKALLEXT2, IDM_SEARCH_UNMARKALLEXT2, IDM_SEARCH_GOPREVMARKER2, IDM_SEARCH_STYLE2TOCLIP } },
+		{ IDM_SEARCH_GONEXTMARKER1, SCE_UNIVERSAL_FOUND_STYLE_EXT1, { IDM_SEARCH_MARKALLEXT1, IDM_SEARCH_UNMARKALLEXT1, IDM_SEARCH_GOPREVMARKER1, IDM_SEARCH_STYLE1TOCLIP } },
+		{ IDM_SEARCH_GONEXTMARKER_DEF, SCE_UNIVERSAL_FOUND_STYLE, { IDM_SEARCH_GOPREVMARKER_DEF, IDM_SEARCH_MARKEDTOCLIP } }
+	};
+
+	for (int j = 0; j < sizeof(bitmapOnStyleMenuItemsInfo) / sizeof(bitmapOnStyleMenuItemsInfo[0]); ++j)
+	{
+		StyleArray& stylers = NppParameters::getInstance().getMiscStylerArray();
+		int iFind = stylers.getStylerIndexByID(bitmapOnStyleMenuItemsInfo[j].styleIndic);
+		
+		if (iFind != -1)
+		{
+			Style const* pStyle = &(stylers.getStyler(iFind));
+
+			HDC hDC = GetDC(NULL);
+			const int bitmapXYsize = 16;
+			HBITMAP hNewBitmap = CreateCompatibleBitmap(hDC, bitmapXYsize, bitmapXYsize);
+			HDC hDCn = CreateCompatibleDC(hDC);
+			HBITMAP hOldBitmap = static_cast<HBITMAP>(SelectObject(hDCn, hNewBitmap));
+			RECT rc = { 0, 0, bitmapXYsize, bitmapXYsize };
+
+			// paint full-size black square
+			HBRUSH hBlackBrush = CreateSolidBrush(RGB(0,0,0));
+			FillRect(hDCn, &rc, hBlackBrush);
+			DeleteObject(hBlackBrush);
+
+			// overpaint a slightly smaller colored square
+			rc.left = rc.top = 1;
+			rc.right = rc.bottom = bitmapXYsize - 1;
+			HBRUSH hColorBrush = CreateSolidBrush(pStyle->_bgColor);
+			FillRect(hDCn, &rc, hColorBrush);
+			DeleteObject(hColorBrush);
+
+			// restore old bitmap so we can delete it to avoid leak
+			SelectObject(hDCn, hOldBitmap);
+			DeleteDC(hDCn);
+			
+			SetMenuItemBitmaps(_mainMenuHandle, bitmapOnStyleMenuItemsInfo[j].firstOfThisColorMenuId, MF_BYCOMMAND, hNewBitmap, hNewBitmap);
+			for (int relatedMenuId : bitmapOnStyleMenuItemsInfo[j].sameColorMenuIds)
+			{
+				SetMenuItemBitmaps(_mainMenuHandle, relatedMenuId, MF_BYCOMMAND, hNewBitmap, NULL);
+			}
+		}
+	}
+}
+
 bool doCheck(HMENU mainHandle, int id)
 {
 	MENUITEMINFO mii;
@@ -2536,7 +2604,6 @@ bool isUrlTextChar(TCHAR const c)
 	{
 		case '"':
 		case '#':
-		case '\'':
 		case '<':
 		case '>':
 		case '{':
@@ -2561,7 +2628,7 @@ bool isUrlQueryDelimiter(TCHAR const c)
 	return false;
 }
 
-bool isUrlSchemeSupported(INTERNET_SCHEME s)
+bool isUrlSchemeSupported(INTERNET_SCHEME s, TCHAR *url)
 {
 	switch (s)
 	{
@@ -2571,6 +2638,17 @@ bool isUrlSchemeSupported(INTERNET_SCHEME s)
 		case INTERNET_SCHEME_MAILTO:
 		case INTERNET_SCHEME_FILE:
 			return true;
+	}
+	generic_string const mySchemes = (NppParameters::getInstance()).getNppGUI()._uriShemes + TEXT(" ");
+	TCHAR *p = (TCHAR *)mySchemes.c_str();
+	while (*p)
+	{
+		int i = 0;
+		while (p [i] && (p [i] != ' ')) i++;
+		if (i == 0) return false;
+		if (generic_strnicmp (url, p, i) == 0) return true;
+		p += i;
+		while (*p == ' ') p++;
 	}
 	return false;
 }
@@ -2667,9 +2745,19 @@ void scanToUrlEnd(TCHAR *text, int textLen, int start, int* distance)
 				break;
 
 			case sQueryAfterDelimiter:
-				if ((text [p] == '\'') || (text [p] == '"'))
+				if ((text [p] == '\'') || (text [p] == '"') || (text [p] == '`'))
 				{
 					q = text [p];
+					s = sQueryQuotes;
+				}
+				else if (text [p] == '(')
+				{
+					q = ')';
+					s = sQueryQuotes;
+				}
+				else if (text [p] == '[')
+				{
+					q = ']';
 					s = sQueryQuotes;
 				}
 				else if (text [p] == '{')
@@ -2735,42 +2823,27 @@ bool removeUnwantedTrailingCharFromUrl (TCHAR const *text, int* length)
 			}
 	}
 	{ // remove unwanted closing parenthesis
-		const TCHAR *closingParenthesis = L")]>";
-		const TCHAR *openingParenthesis = L"([<";
+		const TCHAR *closingParenthesis = L")]";
+		const TCHAR *openingParenthesis = L"([";
 		for (int i = 0; closingParenthesis [i]; i++)
 			if (text [l] == closingParenthesis [i])
 			{
-				int count = 1;
+				int count = 0;
 				for (int j = l - 1; j >= 0; j--)
 				{
 					if (text [j] == closingParenthesis [i])
 						count++;
 					if (text [j] == openingParenthesis [i])
-						count--;
+						if (count > 0)
+							count--;
+						else
+							return false;
 				}
-				if (count == 0)
+				if (count != 0)
 					return false;
 				*length = l;
 				return true;
 			}
-	}
-	{ // remove unwanted quotes
-		const TCHAR *quotes = L"\"'`";
-		for (int i = 0; quotes [i]; i++)
-		{
-			if (text [l] == quotes [i])
-			{
-				int count = 0;
-				for (int j = l - 1; j >= 0; j--)
-					if (text [j] == quotes [i])
-						count++;
-
-				if (count & 1)
-					return false;
-				*length = l;
-				return true;
-			}
-		}
 	}
 	return false;
 }
@@ -2801,7 +2874,7 @@ bool isUrl(TCHAR * text, int textLen, int start, int* segmentLen)
 			URL_COMPONENTS url;
 			memset (& url, 0, sizeof(url));
 			url.dwStructSize = sizeof(url);
-			bool r  = InternetCrackUrl(& text [start], len, 0, & url) && isUrlSchemeSupported(url.nScheme);
+			bool r  = InternetCrackUrl(& text [start], len, 0, & url) && isUrlSchemeSupported(url.nScheme, & text [start]);
 			if (r)
 			{
 				while (removeUnwantedTrailingCharFromUrl (& text [start], & len));
@@ -2996,7 +3069,7 @@ void Notepad_plus::maintainIndentation(TCHAR ch)
 				_pEditView->setLineIndent(curLine, indentAmountPrevLine);
 			}
 			// These languages do no support single line control structures without braces.
-			else if (type == L_PERL || type == L_RUST || L_POWERSHELL)
+			else if (type == L_PERL || type == L_RUST || type == L_POWERSHELL)
 			{
 				_pEditView->setLineIndent(curLine, indentAmountPrevLine);
 			}
@@ -5823,9 +5896,9 @@ std::vector<generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * co
 	}
 
  	LangType lt = pCmdParams->_langType;
-	int ln =  pCmdParams->_line2go;
-    int cn = pCmdParams->_column2go;
-    int cpos = pCmdParams->_pos2go;
+	int lineNumber =  pCmdParams->_line2go;
+	int columnNumber = pCmdParams->_column2go;
+	int positionNumber = pCmdParams->_pos2go;
 	bool recursive = pCmdParams->_isRecursive;
 	bool readOnly = pCmdParams->_isReadOnly;
 	bool openFoldersAsWorkspace = pCmdParams->_openFoldersAsWorkspace;
@@ -5855,25 +5928,32 @@ std::vector<generic_string> Notepad_plus::loadCommandlineParams(const TCHAR * co
 			pBuf->setLangType(lt);
 		}
 
-		if (ln != -1 || cpos != -1)
-		{	//we have to move the cursor manually
+		if (lineNumber >= 0 || positionNumber >= 0)
+		{
+			//we have to move the cursor manually
 			int iView = currentView();	//store view since fileswitch can cause it to change
 			switchToFile(bufID);	//switch to the file. No deferred loading, but this way we can easily move the cursor to the right position
 
-			if (cpos != -1)
+			if (positionNumber >= 0)
 			{
-				_pEditView->execute(SCI_GOTOPOS, cpos);
+				if (positionNumber > 0)
+				{
+					// make sure not jumping into the middle of a multibyte character
+					// or into the middle of a CR/LF pair for Windows files
+					auto before = _pEditView->execute(SCI_POSITIONBEFORE, positionNumber);
+					positionNumber = static_cast<int>(_pEditView->execute(SCI_POSITIONAFTER, before));
+				}
+				_pEditView->execute(SCI_GOTOPOS, positionNumber);
 			}
-            else
-			if (cn == -1)
+			else if (columnNumber < 0)
 			{
-				_pEditView->execute(SCI_GOTOLINE, ln-1);
+				_pEditView->execute(SCI_GOTOLINE, lineNumber - 1);
 			}
-            else
-            {
-                auto pos = _pEditView->execute(SCI_FINDCOLUMN, ln-1, cn-1);
-                _pEditView->execute(SCI_GOTOPOS, pos);
-            }
+			else
+			{
+				auto pos = _pEditView->execute(SCI_FINDCOLUMN, lineNumber - 1, columnNumber - 1);
+				_pEditView->execute(SCI_GOTOPOS, pos);
+			}
 
 			_pEditView->scrollPosToCenter(_pEditView->execute(SCI_GETCURRENTPOS));
 
@@ -6407,7 +6487,7 @@ void Notepad_plus::launchFileBrowser(const vector<generic_string> & folders, con
 		data.dlgID = IDM_VIEW_FILEBROWSER;
 
 		NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
-		generic_string title_temp = pNativeSpeaker->getAttrNameStr(FB_PANELTITLE, "FolderAsWorkspace", "PanelTitle");
+		generic_string title_temp = pNativeSpeaker->getAttrNameStr(FB_PANELTITLE, FOLDERASWORKSPACE_NODE, "PanelTitle");
 
 		static TCHAR title[32];
 		if (title_temp.length() < 32)
@@ -6604,7 +6684,7 @@ void Notepad_plus::launchFunctionList()
 		data.dlgID = IDM_VIEW_FUNC_LIST;
 
 		NativeLangSpeaker *pNativeSpeaker = (NppParameters::getInstance()).getNativeLangSpeaker();
-		generic_string title_temp = pNativeSpeaker->getAttrNameStr(FL_PANELTITLE, "FunctionList", "PanelTitle");
+		generic_string title_temp = pNativeSpeaker->getAttrNameStr(FL_PANELTITLE, FL_FUCTIONLISTROOTNODE, "PanelTitle");
 
 		static TCHAR title[32];
 		if (title_temp.length() < 32)

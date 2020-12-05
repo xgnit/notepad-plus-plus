@@ -37,6 +37,8 @@
 #include "functionListPanel.h"
 #include "ProjectPanel.h"
 #include "fileBrowser.h"
+#include "clipboardHistoryPanel.h"
+#include "ansiCharPanel.h"
 #include "Sorters.h"
 #include "verifySignedfile.h"
 #include "md5.h"
@@ -272,7 +274,7 @@ void Notepad_plus::command(int id)
 			break;
 
 		case IDM_FILE_EXIT:
-			::SendMessage(_pPublicInterface->getHSelf(), WM_CLOSE, 0, 0);
+			::PostMessage(_pPublicInterface->getHSelf(), WM_CLOSE, 0, 0);
 			break;
 
 		case IDM_EDIT_UNDO:
@@ -302,6 +304,19 @@ void Notepad_plus::command(int id)
 			_pEditView->execute(WM_COPY);
 			checkClipboard();
 			break;
+
+		case IDM_EDIT_COPY_LINK:
+		{
+			int startPos = 0, endPos = 0, curPos = 0;
+			if (_pEditView->getIndicatorRange(URL_INDIC, &startPos, &endPos, &curPos))
+			{
+				_pEditView->execute(SCI_SETSEL, startPos, endPos);
+				_pEditView->execute(WM_COPY);
+				checkClipboard();
+				_pEditView->execute(SCI_SETSEL, curPos, curPos);
+				break;
+			}
+		}
 
 		case IDM_EDIT_COPY_BINARY:
 		case IDM_EDIT_CUT_BINARY:
@@ -698,13 +713,35 @@ void Notepad_plus::command(int id)
 
 		case IDM_EDIT_CHAR_PANEL:
 		{
-			launchAnsiCharPanel();
+			if (_pAnsiCharPanel && (!_pAnsiCharPanel->isClosed()))
+			{
+				_pAnsiCharPanel->display(false);
+				_pAnsiCharPanel->setClosed(true);
+				checkMenuItem(IDM_EDIT_CHAR_PANEL, false);
+			}
+			else
+			{
+				checkMenuItem(IDM_EDIT_CHAR_PANEL, true);
+				launchAnsiCharPanel();
+				_pAnsiCharPanel->setClosed(false);
+			}
 		}
 		break;
 
 		case IDM_EDIT_CLIPBOARDHISTORY_PANEL:
 		{
-			launchClipboardHistoryPanel();
+			if (_pClipboardHistoryPanel && (!_pClipboardHistoryPanel->isClosed()))
+			{
+				_pClipboardHistoryPanel->display(false);
+				_pClipboardHistoryPanel->setClosed(true);
+				checkMenuItem(IDM_EDIT_CLIPBOARDHISTORY_PANEL, false);
+			}
+			else
+			{
+				checkMenuItem(IDM_EDIT_CLIPBOARDHISTORY_PANEL, true);
+				launchClipboardHistoryPanel();
+				_pClipboardHistoryPanel->setClosed(false);
+			}
 		}
 		break;
 
